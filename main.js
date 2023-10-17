@@ -2,11 +2,13 @@
 const path = require('path');
 const { app, BrowserWindow, Menu } = require('electron');
 const { ipcMain, dialog } = require('electron');
+const { eventNames } = require('process');
 
 const isDev = process.env.NODE_ENV !== 'production'
 const isMac = process.platform === 'darwin';
 
 
+let settingsWin = null;
 // Create the main window
 function createMainWindow() {
     const mainWindow = new BrowserWindow({
@@ -18,7 +20,10 @@ function createMainWindow() {
             contextIsolation: false,
         },
         // titleBarStyle: 'hidden',
-        frame: false
+        frame: false,
+        /* looks nice but using title-bar buttons looks too choppy */
+        // transparent: true,
+        // backgroundColor: '#00000000',
     });
     mainWindow.setIcon('assets/Beety(icon)-fin.ico');
 
@@ -44,17 +49,37 @@ function createMainWindow() {
             console.log(err);
         });
     });
+
+    ipcMain.on('closeWindow', (event) => {
+        mainWindow.close();
+    })
+    ipcMain.on('maxWindow', (event) => {
+        mainWindow.maximize();
+    })
+    ipcMain.on('unmaxWindow', (event) => {
+        mainWindow.unmaximize();
+    })
+    ipcMain.on('minWindow', (event) => {
+        mainWindow.minimize();
+    })
+    ipcMain.on('openSettings', (event) => {
+        if (settingsWin && settingsWin.isDestroyed())
+            settingsWin = null;
+        if (settingsWin === null)
+            settingsWin = createSettingsWindow();
+    })
 }
 
 // Create about window
-function createAboutWindow() {
-    const aboutWindow = new BrowserWindow({
-        title: 'About Beety IDE',
+function createSettingsWindow() {
+    const settingsWindow = new BrowserWindow({
+        title: 'Beety - Settings',
         width: 480,
         height: 360
     });
 
-    aboutWindow.loadFile(path.join(__dirname, './renderer/about.html'));
+    settingsWindow.loadFile(path.join(__dirname, './renderer/settings.html'));
+    return settingsWindow;
 }
 
 // App is ready
@@ -79,7 +104,7 @@ const menu = [
         label: app.name,
         submenu: [{
                 label: 'About',
-                click: createAboutWindow
+                click: createSettingsWindow
             }]
         }]
     : []),
@@ -98,7 +123,7 @@ const menu = [
         label: 'Help',
         submenu: [{
             label: 'About',
-            click: createAboutWindow
+            click: createSettingsWindow
             }]
         }]
     : [])

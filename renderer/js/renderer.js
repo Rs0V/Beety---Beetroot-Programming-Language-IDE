@@ -4,6 +4,7 @@ const path = require('path');
 const { ipcRenderer, shell } = require('electron');
 const { spawn } = require('child_process');
 
+let mainWinMax = false;
 
 let openFolder = null;
 let Files = [];
@@ -11,7 +12,7 @@ let openFile = null;
 window.addEventListener('load', () => {
     const codeSpace = document.querySelector('#coding-space');
     codeSpace.addEventListener('keydown', (event) => {
-        if (event.key == 'Tab') {
+        if (event.key === 'Tab') {
             event.preventDefault();
 
             const start = codeSpace.selectionStart;
@@ -36,8 +37,15 @@ window.addEventListener('load', () => {
     const filesButton = document.querySelector('#files-btn');
     filesButton.addEventListener('click', () => {
         const defAnim = getComputedStyle(cp).animation;
-        if (cp.style.display === 'none')
+        const app = document.querySelector('#app');
+        if (cp.style.display === 'none') {
             cp.style.display = '';
+            app.style.gridTemplateAreas = `
+                "tb tb tb"
+                "sp cp cs"
+                "sp cp t"
+            `;
+        }
         else {
             cp.classList.remove('slide-in');
             void cp.offsetHeight;
@@ -48,6 +56,12 @@ window.addEventListener('load', () => {
                 cp.classList.remove('slide-out');
                 void cp.offsetHeight;
                 cp.classList.add('slide-in');
+
+                app.style.gridTemplateAreas = `
+                    "tb tb tb"
+                    "sp cs cs"
+                    "sp t t"
+                `;
             }, parseFloat(getComputedStyle(cp).animationDuration.slice(0, -1)) * 1000);
         }
     })
@@ -130,7 +144,7 @@ window.addEventListener('load', () => {
                 const stat = fs.statSync(filePath);
                 if (stat.isFile()) {
                     const extension = path.extname(file);
-                    if (extension == '.btrt')
+                    if (extension === '.btrt')
                         fdiv.appendChild(bImg);
                     else
                         fdiv.appendChild(fimg);
@@ -275,13 +289,46 @@ window.addEventListener('load', () => {
 
         btrt.stdin.write('exit\n');
     })
+
+    const closeBtn = document.querySelector('#close-btn');
+    closeBtn.addEventListener('click', () => {
+        ipcRenderer.send('closeWindow');
+    })
+    const maxBtn = document.querySelector('#max-btn');
+    maxBtn.addEventListener('click', () => {
+        if (mainWinMax === false) {
+            ipcRenderer.send('maxWindow');
+            mainWinMax = true;
+        }
+        else {
+            ipcRenderer.send('unmaxWindow');
+            mainWinMax = false;
+        }
+    })
+    const minBtn = document.querySelector('#min-btn');
+    minBtn.addEventListener('click', () => {
+        ipcRenderer.send('minWindow');
+    })
+    const settingsBtn = document.querySelector('#settings-btn');
+    settingsBtn.addEventListener('click', () => {
+        ipcRenderer.send('openSettings');
+    })
+
+    const text = [...document.querySelectorAll('textarea')]
+        .concat([...document.querySelectorAll('span')])
+        .concat([...document.querySelectorAll('input[type="text"]')]);
+    text.forEach((item) => {
+        item.ondragstart = () => {
+            return false;
+        }
+    });
 });
 
 
 let Ctrl = false;
 let Key1 = null;
 window.addEventListener('keydown', (event) => {
-    if (event.key == 'Control' && Key1 == null){
+    if (event.key === 'Control' && Key1 === null){
         Ctrl = true;
     }
     // console.log(`Ctrl: ${Ctrl}   Key: ${Key1}`);
@@ -307,10 +354,10 @@ window.addEventListener('keydown', (event) => {
 });
 
 window.addEventListener('keyup', (event) => {
-    if (event.key == 'Control')
+    if (event.key === 'Control')
         Ctrl = false;
 });
 window.addEventListener('keyup', (event) => {
-    if (event.key == Key1)
+    if (event.key === Key1)
         Key1 = null;
 });
