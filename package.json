@@ -1,0 +1,17 @@
+{
+  "name": "beety---beetroot-programming-language-ide",
+  "productName": "Beety IDE",
+  "version": "1.0.0",
+  "description": "IDE for Beetroot Programming Language",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^26.2.4",
+    "resize-img": "^2.0.0",
+    "toastify-js": "^1.12.0"
+  }
+}

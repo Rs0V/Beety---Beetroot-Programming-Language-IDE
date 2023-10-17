@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/index.css">
+    <script src="js/renderer.js" defer></script>
+    <title>Beety IDE</title>
+</head>
+<body>
+    <div id="app">
+        <div id="title-bar">
+            <div id="app-logo-container">
+                <img id="app-logo" src="../assets/Beety(icon)-fin.ico" alt="">
+            </div>
+            <div id="settings-cont">
+                <img id="settings-icon" src="../assets/Beety(icon)-fin.ico" alt="">
+            </div>
+            <div id="mmc-cont">
+                <div id="min-cont">
+                    <img id="min-icon" src="../assets/Beety(icon)-fin.ico" alt="">
+                </div>
+                <div id="max-cont">
+                    <img id="max-icon" src="../assets/Beety(icon)-fin.ico" alt="">
+                </div>
+                <div id="close-cont">
+                    <img id="close-icon" src="../assets/Beety(icon)-fin.ico" alt="">
+                </div>
+            </div>
+        </div>
+        <div id="side-panel">
+            <div id="run-btn" class="tab-btn">
+                <img id="run-icon" class="sp-icons" src="../assets/Play-Icon-v1.png" alt="">
+            </div>
+            <div id="files-btn" class="tab-btn">
+                <img id="files-icon" class="sp-icons" src="../assets/Files-Icon-v3.1.png" alt="">
+            </div>
+            <!-- <div id="search-btn" class="tab-btn">
+                <img id="search-icon" class="sp-icons" src="../assets/MagGlass-v1.png" alt="">
+            </div> -->
+        </div>
+        <div id="context-panel" class="slide-in">
+            <div id="cp-top">
+                <input type="button" id="open-folder" value="Open Folder">
+                <input type="image" id="create-file" src="../assets/Plus-Sign-v1.png" alt="">
+                <input type="text" id="search-file-bar" spellcheck="false">
+                <!-- <input type="image" id="search-file" src="../assets/MagGlass-v1.png" alt=""> -->
+            </div>
+            <div id="cp-body"></div>
+        </div>
+        <textarea name="coding-space" id="coding-space" spellcheck="false"></textarea>
+        <div id="terminal"></div>
+    </div>
+</body>
+</html>

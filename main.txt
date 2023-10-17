@@ -1,0 +1,44 @@
+from customtkinter import *
+from PIL import Image, ImageDraw
+
+
+start_color = (255, 0, 0)
+end_color = (0, 0, 255)
+
+width = 256
+height = 256
+
+gradient = Image.new('RGB', (width, height), start_color)
+
+draw = ImageDraw.Draw(gradient)
+for i in range(width):
+    r = int(start_color[0] * (width - i) / width + end_color[0] * i / width)
+    g = int(start_color[1] * (width - i) / width + end_color[1] * i / width)
+    b = int(start_color[2] * (width - i) / width + end_color[2] * i / width)
+    draw.line((i, 0, i, height), fill=(r, g, b))
+
+#gradient.save('gradient.png')
+
+
+
+
+
+app = CTk()
+
+app.geometry("640x480")
+
+
+
+btn_grdnt = gradient.resize((120, 120), Image.Resampling.BILINEAR)
+
+btn = CTkButton(master= app, image= CTkImage(btn_grdnt), text= "", corner_radius= 32, fg_color= "transparent")
+
+btn.place(relx= .5, rely= .5, anchor= "center")
+
+
+
+app.mainloop()
+
+
+
+

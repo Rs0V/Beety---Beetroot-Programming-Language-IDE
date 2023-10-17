@@ -1,0 +1,44 @@
+*{
+    padding: 0;
+    border: 0;
+    margin: 0;
+}
+#app {
+    display: grid;
+
+    width: 100vw;
+    height: 100vh;
+
+    background-image: linear-gradient(0deg, rgb(8, 0, 0) 15%, 65%, rgb(36, 12, 9));
+
+    grid-template-columns: 3fr 7fr 1fr;
+    grid-template-rows: 2fr 1fr;
+}
+
+#side-panel {
+    background-image: linear-gradient(0deg, rgb(30, 2, 0) 15%, 65%, rgb(67, 22, 16));
+    grid-column-start: 1;
+    grid-column-end: 2;
+
+    
+    border: 1px solid rgb(78, 35, 28);
+}
+
+#side-bar {
+    background-image: linear-gradient(0deg, rgb(10, 10, 10) 15%, 65%, rgb(8, 8, 8));
+    grid-column-start: 3;
+    grid-column-end: 4;
+
+    
+    border: 1px solid rgb(56, 56, 56);
+}
+
+#terminal {
+    background-image: linear-gradient(180deg, rgb(29, 0, 0) 15%, 65%, rgb(45, 15, 11));
+    filter: brightness(50%);
+    grid-column-start: 1;
+    grid-column-end: 4;
+
+
+    border: 1px solid rgb(46, 46, 46);
+}

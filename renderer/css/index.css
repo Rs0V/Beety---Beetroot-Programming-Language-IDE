@@ -1,0 +1,267 @@
+*{
+    padding: 0;
+    border: 0;
+    margin: 0;
+    overflow: hidden;
+}
+#app {
+    display: flex;
+
+    width: 100vw;
+    height: 100vh;
+
+    background-image: linear-gradient(rgb(29, 0, 0) 10%, 65%, rgb(15, 0, 0));
+}
+#title-bar {
+    width: 100%;
+    height: 40px;
+}
+#side-panel {
+    display: flex;
+    flex-direction: column;
+
+    width: 54px;
+    height: 100%;
+
+    background-color: rgb(11, 0, 0);
+
+    border-right: 1px solid rgb(66, 37, 37);
+    border-top-right-radius: 14px;
+    border-bottom-right-radius: 14px;
+}
+@keyframes slide-anim {
+    0% {
+        transform: scaleX(0%);
+    }
+    100% {
+        transform: scaleX(100%);
+    }
+}
+#context-panel {
+    display: flex;
+    flex-direction: column;
+
+    width: 224px;
+    height: 100%;
+
+    background-color: rgb(15, 0, 0);
+
+    border-right: 1px solid rgb(80, 41, 41);
+    border-top-right-radius: 14px;
+    border-bottom-right-radius: 14px;
+
+    transform-origin: left;
+}
+.slide-in {
+    animation: slide-anim 0.1s ease-in 0s 1 normal forwards;
+}
+.slide-out {
+    animation: slide-anim 0.1s ease-in 0s 1 reverse forwards;
+}
+.tab-btn {
+    align-self: flex-start;
+
+    display: flex;
+
+    width: 85%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 12px;
+
+    border-radius: 6px;
+    background-color: transparent;
+    transition: background-color 0.3s;
+}
+.tab-btn:hover {
+    background-color: rgb(32, 8, 10);
+}
+.sp-icons {
+    width: 75%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: auto;
+    margin-bottom: auto;
+
+    filter: saturate(80%) brightness(80%) hue-rotate(10deg);
+}
+#coding-space {
+    flex-grow: 1;
+    height: 100%;
+
+    box-sizing: border-box;
+    padding-left: 14px;
+    padding-right: 14px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+
+    font-size: 16px;
+    font-weight: 500;
+    font-family: 'Source Code Pro', monospace;
+    color: rgb(255, 157, 177);
+
+    tab-size: 4;
+
+    background-color: transparent;
+    user-select: none;
+
+    border: none;
+    outline: none;
+    box-shadow: none;
+    resize: none;
+
+    overflow-y: scroll;
+    overflow-x: hidden;
+
+    cursor: text;
+}
+#coding-space:focus {
+    cursor: auto;
+}
+#coding-space::-webkit-scrollbar {
+    width: 14px;
+}
+#coding-space::-webkit-scrollbar-track {
+    background-color: rgb(11, 0, 0);
+}
+#coding-space::-webkit-scrollbar-thumb {
+    border-radius: 12px;
+    background-image: linear-gradient(0deg, rgb(72, 22, 24) 25%, 70%, rgb(37, 9, 12));
+}
+#coding-space::-webkit-scrollbar-thumb:hover {
+    background-image: linear-gradient(0deg, rgb(52, 11, 12) 25%, 70%, rgb(64, 21, 25));
+}
+#cp-top {
+    width: 100%;
+    height: 128px;
+
+    display: flex;
+    align-items: flex-start;
+    align-content: flex-start;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+
+    box-sizing: border-box;
+    padding: 12px;
+}
+#cp-top::after {
+    content: "";
+    display: block;
+    
+    width: 90%;
+    height: 1px;
+
+    margin-top: 28px;
+    margin-left: auto;
+    margin-right: auto;
+
+    background-color: rgb(78, 32, 32);
+}
+#cp-body {
+    display: flex;
+    flex-direction: column;
+
+    align-items: flex-start;
+    align-content: flex-start;
+    justify-content: flex-start;
+}
+#open-folder {
+    width: 104px;
+    height: 30px;
+
+    margin-right: 12px;
+
+    border-radius: 5px;
+    background-color: rgb(72, 17, 23);
+
+    border-bottom: 2px solid rgb(125, 30, 55);
+
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'Source Code Pro', monospace;
+    color: rgb(217, 100, 123);
+
+    user-select: none;
+
+    outline: none;
+    box-shadow: none;
+    resize: none;
+
+    cursor: pointer;
+}
+#open-folder:focus {
+    cursor: auto;
+}
+#create-file {
+    height: 30px;
+
+    box-sizing: border-box;
+    padding: 4px;
+
+    border-radius: 5px;
+    background-color: rgb(72, 17, 23);
+
+    border-bottom: 2px solid rgb(125, 30, 55);
+    
+    user-select: none;
+
+    outline: none;
+    box-shadow: none;
+    resize: none;
+}
+#search-file-bar {
+    width: 72%;
+    height: 30px;
+
+    margin-right: 12px;
+    margin-top: 12px;
+
+    box-sizing: border-box;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+
+    font-size: 12px;
+    font-weight: 400;
+    font-family: 'Source Code Pro', monospace;
+    color: rgb(242, 131, 153);
+
+    background-color: rgb(32, 1, 1);
+    
+    user-select: none;
+
+    border: none;
+    border-bottom: 2px solid rgb(46, 9, 18);
+    border-top: 2px solid rgb(63, 15, 28);
+    border-radius: 5px;
+
+    outline: none;
+    box-shadow: none;
+    resize: none;
+
+    overflow: hidden;
+
+    cursor: text;
+}
+#search-file {
+    height: 30px;
+
+    margin-top: 12px;
+
+    box-sizing: border-box;
+    padding: 4px;
+
+    border-radius: 5px;
+    background-color: rgb(72, 17, 23);
+
+    border-bottom: 2px solid rgb(125, 30, 55);
+
+    user-select: none;
+
+    outline: none;
+    box-shadow: none;
+    resize: none;
+}
+#search-file-bar:focus {
+    cursor: auto;
+}
