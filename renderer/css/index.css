@@ -86,6 +86,12 @@ img, textarea, span {
 }
 #settings-icon {
     height: 45%;
+    transform-origin: center;
+    rotate: 0deg;
+    transition: rotate ease-in-out 0.25s;
+}
+#settings-btn:hover #settings-icon {
+    rotate: 90deg;
 }
 .tb-btn {
     border-radius: 4px;
