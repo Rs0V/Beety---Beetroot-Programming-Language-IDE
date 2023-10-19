@@ -4,7 +4,7 @@ const { app, BrowserWindow, Menu } = require('electron');
 const { ipcMain, dialog } = require('electron');
 const { eventNames } = require('process');
 
-const isDev = process.env.NODE_ENV !== 'production'
+const isDev = process.env.NODE_ENV !== 'production';
 const isMac = process.platform === 'darwin';
 
 
@@ -13,17 +13,13 @@ let settingsWin = null;
 function createMainWindow() {
     const mainWindow = new BrowserWindow({
         title: 'Beety IDE',
-        width: isDev ? 1024 : 960,
-        height: 640,
+        width: isDev ? 1140 : 1024,
+        height: 760,
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
         },
-        // titleBarStyle: 'hidden',
         frame: false,
-        /* looks nice but using title-bar buttons looks too choppy */
-        // transparent: true,
-        // backgroundColor: '#00000000',
     });
     mainWindow.setIcon('assets/Beety(icon)-fin.ico');
 
@@ -33,11 +29,6 @@ function createMainWindow() {
     }
 
     mainWindow.loadFile(path.join(__dirname, './renderer/index.html'));
-
-    // const { ipcMain, dialog } = require('electron');
-    // ipcMain.handle('ShowMessage', (event, message) => {
-    //     dialog.showDialog(mainWindow, message);
-    // });
 
     ipcMain.on('getOpenFolder', (event) => {
         dialog.showOpenDialog({
@@ -50,36 +41,58 @@ function createMainWindow() {
         });
     });
 
-    ipcMain.on('closeWindow', (event) => {
+    ipcMain.on('closeApp', (event) => {
         mainWindow.close();
-    })
-    ipcMain.on('maxWindow', (event) => {
+    });
+    ipcMain.on('maxApp', (event) => {
         mainWindow.maximize();
-    })
-    ipcMain.on('unmaxWindow', (event) => {
+    });
+    ipcMain.on('unmaxApp', (event) => {
         mainWindow.unmaximize();
-    })
-    ipcMain.on('minWindow', (event) => {
+    });
+    ipcMain.on('minApp', (event) => {
         mainWindow.minimize();
-    })
+    });
     ipcMain.on('openSettings', (event) => {
         if (settingsWin && settingsWin.isDestroyed())
             settingsWin = null;
         if (settingsWin === null)
-            settingsWin = createSettingsWindow();
-    })
+            createSettingsWindow();
+    });
 }
 
 // Create about window
 function createSettingsWindow() {
-    const settingsWindow = new BrowserWindow({
+    settingsWin = new BrowserWindow({
         title: 'Beety - Settings',
-        width: 480,
-        height: 360
+        width: 960,
+        height: 640,
+        webPreferences: {
+            nodeIntegration: true,
+            contextIsolation: false,
+        },
+        frame: false,
     });
+    settingsWin.setIcon('assets/Beety(icon)-fin.ico');
+    settingsWin.removeMenu();
+    if (isDev) {
+        settingsWin.webContents.openDevTools();
+    }
 
-    settingsWindow.loadFile(path.join(__dirname, './renderer/settings.html'));
-    return settingsWindow;
+    settingsWin.loadFile(path.join(__dirname, './renderer/settings.html'));
+
+    ipcMain.on('closeSettings', (event) => {
+        settingsWin.close();
+    });
+    ipcMain.on('maxSettings', (event) => {
+        settingsWin.maximize();
+    });
+    ipcMain.on('unmaxSettings', (event) => {
+        settingsWin.unmaximize();
+    });
+    ipcMain.on('minSettings', (event) => {
+        settingsWin.minimize();
+    });
 }
 
 // App is ready

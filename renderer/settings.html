@@ -4,9 +4,69 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="script-src 'self'">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Teko:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/settings.css">
+    <script src="js/renderer.js" defer></script>
     <title>Beety - Settings</title>
 </head>
-<body>
-    <h1>Hello World</h1>
+<body id="settings">
+    <div id="win">
+        <div id="title-bar">
+            <div id="tb-left">
+                <div id="win-logo-container">
+                    <img id="win-logo" src="../assets/Beety(icon)-fin.ico" alt="">
+                </div>
+            </div>
+            <div id="tb-mid"></div>
+            <div id="tb-right">
+                <div id="min-btn" class="tb-btn">
+                    <img id="min-icon" src="../assets/Title-Bar-Minimize-v1.png" alt="">
+                </div>
+                <div id="max-btn" class="tb-btn">
+                    <img id="max-icon" src="../assets/Title-Bar-Maximize-v1.png" alt="">
+                </div>
+                <div id="close-btn" class="tb-btn">
+                    <img id="close-icon" src="../assets/Title-Bar-Close-v1.png" alt="">
+                </div>
+            </div>
+        </div>
+        <div id="side-panel">
+            <ul>
+                <li><input type="button" id="compilation-btn" class="textbox-font" value="Compilation"></li>
+                <li><input type="button" id="theme-btn" class="textbox-font" value="Theme"></li>
+            </ul>
+        </div>
+        <div id="main-panel">
+            <div id="compilation-tab">
+                <ul>
+                    <li>
+                        <span class="label-font">Beetroot Compiler - Path</span><br>
+                        <input type="text" id="btrt-path" class="textbox-font">
+                    </li>
+                    <div class="line-sep"><div></div></div>
+                    <li>
+                        <label for="use-btrt-comp" class="label-font">Use Beetroot Compiler</label>
+                        <input type="checkbox" id="use-btrt">
+                    </li>
+                    <div class="line-sep"><div></div></div>
+                    <li>
+                        <span class="label-font">Beetroot Compiler - Python Main - Path</span><br>
+                        <input type="text" id="btrt-py-path" class="textbox-font">
+                    </li>
+                    <div class="line-sep"><div></div></div>
+                    <li>
+                        <span class="label-font">C++ Prerequisites - Path</span><br>
+                        <input type="text" id="prereqs-path" class="textbox-font">
+                    </li>
+                </ul>
+            </div>
+            <div id="theme-tab">
+
+            </div>
+        </div>
+    </div>
 </body>
 </html>

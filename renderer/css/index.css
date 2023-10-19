@@ -41,8 +41,10 @@ img, textarea, span {
     grid-area: tb;
 
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 1fr;
+    grid-template-columns: auto auto auto;
+    /* grid-template-columns: repeat(auto-fit, minmax(100px, 1fr) minmax(50px, 0.5fr) minmax(100px, 1fr)); */
+    /* grid-template-rows: 1fr; */
+    /* grid-auto-flow: column; */
 
     background-color: rgb(16, 0, 0);
 
@@ -70,22 +72,21 @@ img, textarea, span {
 #title-bar > :last-child {
     justify-content: flex-end;
 }
-#title-bar > * > * {
+#title-bar > * > div {
     display: flex;
-
-    aspect-ratio: 1 / 1;
-    height: 100%;
-    width: auto;
+    /* align-self: center; */
+    /* aspect-ratio: 1 / 1; */
+    height: 80%;
 }
 #title-bar > * > * > * {
-    height: 35%;
+    height: 45%;
     margin: auto;
 }
 #app-logo {
-    height: 55%;
+    height: 65%;
 }
 #settings-icon {
-    height: 45%;
+    height: 55%;
     transform-origin: center;
     rotate: 0deg;
     transition: rotate ease-in-out 0.25s;
@@ -100,6 +101,31 @@ img, textarea, span {
 }
 .tb-btn:hover {
     background-color: rgba(255, 11, 76, 0.2);
+}
+#tb-file, #tb-edit, #tb-view, #tb-help {
+    width: 48px;
+    min-width: 48px;
+    height: 65%;
+
+    margin-left: 3px;
+    margin-right: 3px;
+
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'Source Code Pro', monospace;
+    color: rgb(217, 100, 123);
+
+    padding: 0;
+    text-align: center;
+
+    user-select: none;
+
+    outline: none;
+    box-shadow: none;
+    resize: none;
+}
+#close-btn {
+    margin-right: 4px;
 }
 #side-panel {
     grid-area: sp;
@@ -181,10 +207,9 @@ img, textarea, span {
     height: 100%;
 
     box-sizing: border-box;
-    padding-left: 14px;
-    padding-right: 14px;
-    padding-top: 10px;
-    padding-bottom: 10px;
+    padding: 24px;
+    padding-top: 18px;
+    padding-bottom: 18px;
 
     font-size: 16px;
     font-weight: 500;
@@ -310,8 +335,7 @@ img, textarea, span {
     margin-top: 12px;
 
     box-sizing: border-box;
-    padding-left: 4px;
-    padding-right: 4px;
+    padding: 8px;
     padding-top: 2px;
     padding-bottom: 2px;
 
@@ -320,13 +344,13 @@ img, textarea, span {
     font-family: 'Source Code Pro', monospace;
     color: rgb(242, 131, 153);
 
-    background-color: rgb(32, 1, 1);
+    background-color: rgb(44, 1, 1);
     
     user-select: none;
 
     border: none;
-    border-bottom: 2px solid rgb(46, 9, 18);
-    border-top: 2px solid rgb(63, 15, 28);
+    border-bottom: 2px solid rgb(61, 12, 24);
+    /* border-top: 2px solid rgb(63, 15, 28); */
     border-radius: 5px;
 
     outline: none;

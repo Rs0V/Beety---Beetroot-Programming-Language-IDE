@@ -9,7 +9,34 @@ let mainWinMax = false;
 let openFolder = null;
 let Files = [];
 let openFile = null;
+
+
+let prereqsPath = 'E:/Visual Studio Projects/Beetroot-Prereqs/Beetroot-Prereqs/Beetroot-Prereqs.cpp';
+let pyBtrtFile = 'E:/VS Code Projects/1/Beetroot Programming Language/main.py';
+let btrtCompiler = 'E:/VS Code Projects/1/Beetroot Programming Language/dist/main/main.exe';
+let useBtrtCompiler = false;
+
+if (window.localStorage.getItem('btrtPath'))
+    btrtCompiler = window.localStorage.getItem('btrtPath');
+
+if (window.localStorage.getItem('useBtrt'))
+    useBtrtCompiler = (window.localStorage.getItem('useBtrt') === 'true');
+
+if (window.localStorage.getItem('btrtPyPath'))
+    pyBtrtFile = window.localStorage.getItem('btrtPyPath');
+
+if (window.localStorage.getItem('prereqsPath'))
+    prereqsPath = window.localStorage.getItem('prereqsPath');
+
+
+
+//--------------
+// APP WINDOW
+//--------------
 window.addEventListener('load', () => {
+    if (document.body.id !== 'index')
+        return;
+
     const codeSpace = document.querySelector('#coding-space');
     codeSpace.addEventListener('keydown', (event) => {
         if (event.key === 'Tab') {
@@ -24,12 +51,23 @@ window.addEventListener('load', () => {
             // put caret at right position again
             codeSpace.selectionStart = codeSpace.selectionEnd = start + 1;
         }
-    })
+    });
 
     const tabButtons = document.querySelectorAll('.tab-btn');
     tabButtons.forEach((elem) => {
         elem.style.height = getComputedStyle(elem).width;
-    })
+    });
+
+    const tbIconedElements = [document.querySelector('#app-logo-container'),
+        document.querySelector('#settings-btn'),
+        document.querySelector('#min-btn'),
+        document.querySelector('#max-btn'),
+        document.querySelector('#close-btn')
+    ];
+    tbIconedElements.forEach((elem) => {
+        elem.style.width = getComputedStyle(elem).height;
+        elem.style.minWidth = getComputedStyle(elem).height;
+    });
 
     const cp = document.querySelector('#context-panel');
     cp.style.display = 'none';
@@ -64,11 +102,10 @@ window.addEventListener('load', () => {
                 `;
             }, parseFloat(getComputedStyle(cp).animationDuration.slice(0, -1)) * 1000);
         }
-    })
+    });
 
     const openFolderBtn = document.querySelector('#open-folder');
     openFolderBtn.addEventListener('click', () => {
-        // ipcRenderer.invoke('ShowMessage', 'Hello!');
         ipcRenderer.send('getOpenFolder');
         ipcRenderer.on('openFolder', (event, folderPath) => {
             openFolder = folderPath;
@@ -76,7 +113,6 @@ window.addEventListener('load', () => {
 
             let mainFiles = null;
             try {
-                // mainFiles = structuredClone(fs.readdirSync(openFolder));
                 mainFiles = fs.readdirSync(openFolder);
                 console.log(mainFiles);
             } catch (err) {
@@ -102,11 +138,11 @@ window.addEventListener('load', () => {
     
             const fileName = document.createElement('div');
             fileName.style.display = 'flex';
-            // fileName.style.flexGrow = '1';
+
             fileName.style.height = '100%';
             fileName.style.marginLeft = '8px';
 
-            const spanFileName = document.createElement('span')
+            const spanFileName = document.createElement('span');
             spanFileName.style.margin = 'auto';
 
             spanFileName.style.fontSize = '14px';
@@ -120,7 +156,7 @@ window.addEventListener('load', () => {
             fileDiv.style.alignContent = 'center';
             fileDiv.style.justifyContent = 'flex-start';
 
-            fileDiv.style.marginBottom = '8px'
+            fileDiv.style.marginBottom = '8px';
 
             fileDiv.style.width = '90%';
             fileDiv.style.height = '24px';
@@ -148,11 +184,9 @@ window.addEventListener('load', () => {
                         fdiv.appendChild(bImg);
                     else
                         fdiv.appendChild(fimg);
-                    // fimg.style.width = toString(parseFloat(getComputedStyle(cpBody).width.slice[0, -2]) * 90 / 100) + 'px';
                 }
                 else {
                     fdiv.appendChild(dImg);
-                    // dImg.style.width = toString(parseFloat(getComputedStyle(fdiv).width.slice[0, -2]) * 90 / 100) + 'px';
                 }
 
                 sfname.textContent = file;
@@ -167,7 +201,7 @@ window.addEventListener('load', () => {
                             contents: fs.readFileSync(filePath, 'utf8')
                         });
                     } catch (err) {
-                        console.log(`Couldn't read file: ${err}`)
+                        console.log(`Couldn't read file: ${err}`);
                     }
                 }
                 const fileIndex = Files.length - 1;
@@ -179,7 +213,7 @@ window.addEventListener('load', () => {
                         openFile = fileIndex;
                         codeSpace.value = Files[openFile].contents;
                     }
-                })
+                });
 
                 if (!stat.isFile() || stat.isFile() && path.extname(filePath) != '.cpp' && path.extname(filePath) != '.exe')
                     cpBody.appendChild(fdiv);
@@ -202,17 +236,17 @@ window.addEventListener('load', () => {
         if (path.extname(Files[openFile].path) != '.btrt')
             return;
 
-        const prereqsPath = 'E:/Visual Studio Projects/Beetroot-Prereqs/Beetroot-Prereqs/Beetroot-Prereqs.cpp';
-        const pyBtrtFile = 'E:/VS Code Projects/1/Beetroot Programming Language/main.py'
-
         // RUN BEETROOT COMPILER
         const python = spawn('python', [`"${pyBtrtFile}"`], {
             shell: true
         });
 
         // COMMENT EITHER ONE TO SWITCH BETWEEN PYTHON AND BEETROOT RESPECTIVELY
-        const btrt = python;
-        // const btrt = spawn('E:/VS Code Projects/1/Beetroot Programming Language/dist/main/main.exe');
+        let btrt = null;
+        if (useBtrtCompiler === false)
+            btrt = python;
+        else
+            btrt = spawn(btrtCompiler);
 
         btrt.stdin.write(`btrt -p ${prereqsPath}\n`);
         btrt.stdin.write(`btrt -c ${Files[openFile].path}\n`);
@@ -224,43 +258,6 @@ window.addEventListener('load', () => {
                 // RUN G++ COMPILER
                 const cppFilePath = Files[openFile].path.slice(0, Files[openFile].path.lastIndexOf('.')) + '.cpp';
                 const exeFilePath = Files[openFile].path.slice(0, Files[openFile].path.lastIndexOf('.'));
-
-                /*
-                const compiler = spawn('C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.35.32215/bin/Hostx64/x64/cl.exe',
-                    [
-                    '-I',
-                    '"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.35.32215\\include"',
-                    '-EHsc',
-                    '-c',
-                    '"C:\\Users\\Kris\\Desktop\\Empty Test Folder\\main.cpp"',
-                    '-link',
-                    '/LIBPATH:"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.35.32215\\lib\\x64"'
-                ]);
-
-                const gpp = spawn('C:/msys64/ucrt64/bin/g++.exe', [
-                    'g++',
-                    `"${cppFilePath}"`,
-                    '-o',
-                    `"${exeFilePath}"`
-                ]);
-
-                gpp.stdin.write(`g++ "${cppFilePath}" -o "${exeFilePath}"\n`);
-
-                gpp.stdout.on('data', (data) => {
-                    console.log(`stdout: ${data}`);
-                });
-
-                gpp.stderr.on('data', (data) => {
-                    console.error(`stderr: ${data}`);
-                });
-
-                gpp.on('close', (code) => {
-                    console.log(`child process exited with code ${code}`);
-
-                    // RUN COMPILED EXECUTABLE
-                    shell.openPath(exeFilePath + '.exe');
-                });
-                */
 
                 const gpp = spawn('g++', [`"${cppFilePath}" -o "${exeFilePath}"`], {
                     shell: true
@@ -288,31 +285,31 @@ window.addEventListener('load', () => {
         });
 
         btrt.stdin.write('exit\n');
-    })
+    });
 
     const closeBtn = document.querySelector('#close-btn');
     closeBtn.addEventListener('click', () => {
-        ipcRenderer.send('closeWindow');
-    })
+        ipcRenderer.send('closeApp');
+    });
     const maxBtn = document.querySelector('#max-btn');
     maxBtn.addEventListener('click', () => {
         if (mainWinMax === false) {
-            ipcRenderer.send('maxWindow');
+            ipcRenderer.send('maxApp');
             mainWinMax = true;
         }
         else {
-            ipcRenderer.send('unmaxWindow');
+            ipcRenderer.send('unmaxApp');
             mainWinMax = false;
         }
-    })
+    });
     const minBtn = document.querySelector('#min-btn');
     minBtn.addEventListener('click', () => {
-        ipcRenderer.send('minWindow');
-    })
+        ipcRenderer.send('minApp');
+    });
     const settingsBtn = document.querySelector('#settings-btn');
     settingsBtn.addEventListener('click', () => {
         ipcRenderer.send('openSettings');
-    })
+    });
 
     const text = [...document.querySelectorAll('textarea')]
         .concat([...document.querySelectorAll('span')])
@@ -325,6 +322,99 @@ window.addEventListener('load', () => {
 });
 
 
+
+
+
+//-------------------
+// SETTINGS WINDOW
+//-------------------
+window.addEventListener('load', () => {
+    if (document.body.id !== 'settings')
+        return;
+
+    const tbIconedElements = [document.querySelector('#win-logo-container'),
+        document.querySelector('#min-btn'),
+        document.querySelector('#max-btn'),
+        document.querySelector('#close-btn')
+    ];
+    tbIconedElements.forEach((elem) => {
+        elem.style.width = getComputedStyle(elem).height;
+        elem.style.minWidth = getComputedStyle(elem).height;
+    });
+
+    const closeBtn = document.querySelector('#close-btn');
+    closeBtn.addEventListener('click', () => {
+        ipcRenderer.send('closeSettings');
+    });
+    const maxBtn = document.querySelector('#max-btn');
+    maxBtn.addEventListener('click', () => {
+        if (mainWinMax === false) {
+            ipcRenderer.send('maxSettings');
+            mainWinMax = true;
+        }
+        else {
+            ipcRenderer.send('unmaxSettings');
+            mainWinMax = false;
+        }
+    });
+    const minBtn = document.querySelector('#min-btn');
+    minBtn.addEventListener('click', () => {
+        ipcRenderer.send('minSettings');
+    });
+
+    const panelBtns = [...document.querySelectorAll('#side-panel > ul > li > input[type="button"]')];
+    const panels = [...document.querySelectorAll('#main-panel > div')];
+    panels.forEach((elem) => {
+        elem.style.display = 'none';
+    });
+    panels[0].style.display = '';
+    panelBtns.forEach((elem, index) => {
+        elem.addEventListener('click', () => {
+            panels.forEach((p) => {
+                p.style.display = 'none';
+            });
+            panels[index].style.display = '';
+        });
+    });
+
+    const btrtPath = document.querySelector('#btrt-path');
+    const useBtrt = document.querySelector('#use-btrt');
+    const btrtPyPath = document.querySelector('#btrt-py-path');
+    const prereqsPath = document.querySelector('#prereqs-path');
+
+    if (window.localStorage.getItem('btrtPath'))
+        btrtPath.value = window.localStorage.getItem('btrtPath');
+
+    if (window.localStorage.getItem('useBtrt'))
+        useBtrt.checked = (window.localStorage.getItem('useBtrt') === 'true');
+
+    if (window.localStorage.getItem('btrtPyPath'))
+        btrtPyPath.value = window.localStorage.getItem('btrtPyPath');
+
+    if (window.localStorage.getItem('prereqsPath'))
+        prereqsPath.value = window.localStorage.getItem('prereqsPath');
+
+    btrtPath.addEventListener('keydown', () => {
+        window.localStorage.setItem('btrtPath', btrtPath.value);
+    });
+    useBtrt.addEventListener('click', () => {
+        window.localStorage.setItem('useBtrt', useBtrt.checked);
+    });
+    btrtPyPath.addEventListener('keydown', () => {
+        window.localStorage.setItem('btrtPyPath', btrtPyPath.value);
+    });
+    prereqsPath.addEventListener('keydown', () => {
+        window.localStorage.setItem('prereqsPath', prereqsPath.value);
+    });
+});
+
+
+
+
+
+//-----------------------
+// CTRL + ... COMMANDS
+//-----------------------
 let Ctrl = false;
 let Key1 = null;
 window.addEventListener('keydown', (event) => {
