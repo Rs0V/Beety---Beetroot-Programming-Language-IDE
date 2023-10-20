@@ -1,4 +1,86 @@
 
+const customEvents = {
+    copenfolder: new Event('copenfolder'),
+
+    cnewfile:    new Event('cnewfile'),
+    csavefile:   new Event('csavefile'),
+    csaveall:    new Event('csaveall'),
+ 
+    cexitapp:    new Event('cexitapp'),
+ 
+    cundo:       new Event('cundo'),
+    credo:       new Event('credo'),
+ 
+    ccutline:    new Event('ccutline'),
+    ccopyline:   new Event('ccopyline'),
+    cpasteline:  new Event('cpasteline'),
+ 
+    cfind:       new Event('cfind'),
+    creplace:    new Event('creplace'),
+ 
+    ccomment:    new Event('ccomment'),
+ 
+    cterminal:   new Event('cterminal'),
+ 
+    cbtrtdoc:    new Event('cbtrtdoc'),
+    cabout:      new Event('cabout'),
+};
+class Shortcut {
+    constructor(mod1, mod2, key, event, eventFunc) {
+        this.mod1 = mod1;
+        this.mod2 = mod2;
+        this.key  = key;
+        this.event  = event;
+        this.eventFunc = eventFunc;
+    }
+}
+const modKeysCheck = {
+    Ctrl:     false,
+    Shift:    false,
+    Alt:      false,
+    CheckKey: function(key) {
+        switch (key) {
+            case 'Control':
+            case 'Ctrl':
+                return this.Ctrl;
+            case 'Shift':
+                return this.Shift;
+            case 'Alt':
+                return this.Alt;
+            default:
+                return true;
+        }
+    }
+}
+window.addEventListener('keydown', (event) => {
+    switch (event.key) {
+        case 'Control':
+            modKeysCheck.Ctrl = true;
+            break;
+        case 'Shift':
+            modKeysCheck.Shift = true;
+            break;
+        case 'Alt':
+            modKeysCheck.Alt = true;
+            break;
+    }
+});
+window.addEventListener('keyup', (event) => {
+    switch (event.key) {
+        case 'Control':
+            modKeysCheck.Ctrl = false;
+            break;
+        case 'Shift':
+            modKeysCheck.Shift = false;
+            break;
+        case 'Alt':
+            modKeysCheck.Alt = false;
+            break;
+    }
+});
+
+//---------------------------------------------------------------------------
+
 const fs = require('fs');
 const path = require('path');
 const { ipcRenderer, shell } = require('electron');
@@ -484,37 +566,31 @@ window.addEventListener('load', () => {
 
 
 
-//-----------------------
-// CTRL + ... COMMANDS
-//-----------------------
-let Ctrl = false;
-let Key1 = null;
+//--------------------
+// SHORTCUTS CHECKS
+//--------------------
+let appShortCuts = [new Shortcut('Ctrl', null, 's', customEvents.csavefile),
+    new Shortcut('Ctrl', null, 'q', customEvents.cexitapp)];
 window.addEventListener('keydown', (event) => {
-    if (event.key === 'Control' && Key1 === null){
-        Ctrl = true;
-    }
-    // console.log(`Ctrl: ${Ctrl}   Key: ${Key1}`);
-});
-window.addEventListener('keydown', (event) => {
-    if (event.key != 'Control')
-        Key1 = event.key;
-
-    if (Ctrl && Key1) {
-        switch (Key1) {
-            case 's':
-                saveFile();
-                break;
-            default:
-                break;
-        }
+    if (event.repeat === false) {
+        console.log(`Ctrl: ${modKeysCheck.Ctrl},    Shift: ${modKeysCheck.Shift},    Alt: ${modKeysCheck.Alt}`)
+        appShortCuts.forEach((shortcut) => {
+            if (modKeysCheck.CheckKey(shortcut.mod1) &&
+                modKeysCheck.CheckKey(shortcut.mod2) &&
+                event.key === shortcut.key) {
+                dispatchEvent(shortcut.event);
+            }
+        });
     }
 });
-
-window.addEventListener('keyup', (event) => {
-    if (event.key === 'Control')
-        Ctrl = false;
+window.addEventListener(customEvents.csavefile.type, () => {
+    if (document.body.id !== 'index')
+        return;
+    saveFile();
 });
-window.addEventListener('keyup', (event) => {
-    if (event.key === Key1)
-        Key1 = null;
+window.addEventListener(customEvents.cexitapp.type, () => {
+    if (document.body.id !== 'index')
+        return;
+    saveFile();
 });
+document.querySelector('#menu-exit').addEventListener('click', () => { ipcRenderer.send('closeApp'); });
