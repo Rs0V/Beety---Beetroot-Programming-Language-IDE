@@ -11,7 +11,7 @@ let Files = [];
 let openFile = null;
 
 
-let prereqsPath = 'E:/Visual Studio Projects/Beetroot-Prereqs/Beetroot-Prereqs/Beetroot-Prereqs.cpp';
+let prereqs = 'E:/Visual Studio Projects/Beetroot-Prereqs/Beetroot-Prereqs/Beetroot-Prereqs.cpp';
 let pyBtrtFile = 'E:/VS Code Projects/1/Beetroot Programming Language/main.py';
 let btrtCompiler = 'E:/VS Code Projects/1/Beetroot Programming Language/dist/main/main.exe';
 let useBtrtCompiler = false;
@@ -26,7 +26,33 @@ if (window.localStorage.getItem('btrtPyPath'))
     pyBtrtFile = window.localStorage.getItem('btrtPyPath');
 
 if (window.localStorage.getItem('prereqsPath'))
-    prereqsPath = window.localStorage.getItem('prereqsPath');
+    prereqs = window.localStorage.getItem('prereqsPath');
+
+
+
+
+function saveFile() {
+    fs.writeFile(Files[openFile].path, document.querySelector('#coding-space').value, (err) => {
+        if (err)
+            console.log("Couldn't modify file: " + err.message);
+        else
+            console.log(`File "${Files[openFile].name}${path.extname(Files[openFile].path)}" modified successfully!`);
+    });
+}
+function saveAllFiles() {
+    saveFile();
+    Files.forEach((file, index) => {
+        if (index !== openFile) {
+            fs.writeFile(file.path, file.contents, (err) => {
+                if (err)
+                    console.log(`Couldn't modify file "${file.name}": ` + err.message);
+                else
+                    console.log(`File "${file.name}${path.extname(file.path)}" modified successfully!`);
+            });
+        }
+    });
+}
+
 
 
 
@@ -104,133 +130,6 @@ window.addEventListener('load', () => {
         }
     });
 
-    const openFolderBtn = document.querySelector('#open-folder');
-    openFolderBtn.addEventListener('click', () => {
-        ipcRenderer.send('getOpenFolder');
-        ipcRenderer.on('openFolder', (event, folderPath) => {
-            openFolder = folderPath;
-            console.log(openFolder);
-
-            let mainFiles = null;
-            try {
-                mainFiles = fs.readdirSync(openFolder);
-                console.log(mainFiles);
-            } catch (err) {
-                console.log(`Unable to scan directory: ${err}`);
-            }
-    
-            const cpBody = document.querySelector('#cp-body');
-            while (cpBody.firstChild) {
-                cpBody.removeChild(cpBody.lastChild);
-            }
-    
-            const btrtFileImg = document.createElement('img');
-            btrtFileImg.src = '../assets/Beety(icon)-fin.ico';
-            btrtFileImg.style.height = '70%';
-
-            const fileImg = document.createElement('img');
-            fileImg.src = '../assets/Files-Icon-v3.1.png';
-            fileImg.style.height = '70%';
-    
-            const dirImg = document.createElement('img');
-            dirImg.src = '../assets/Plus-Sign-v1.png';
-            dirImg.style.height = '70%';
-    
-            const fileName = document.createElement('div');
-            fileName.style.display = 'flex';
-
-            fileName.style.height = '100%';
-            fileName.style.marginLeft = '8px';
-
-            const spanFileName = document.createElement('span');
-            spanFileName.style.margin = 'auto';
-
-            spanFileName.style.fontSize = '14px';
-            spanFileName.style.fontWeight = '400';
-            spanFileName.style.fontFamily = "'Source Code Pro', monospace";
-            spanFileName.style.color = 'rgb(217, 100, 123)';
-    
-            const fileDiv = document.createElement('div');
-            fileDiv.style.display = 'flex';
-            fileDiv.style.alignItems = 'center';
-            fileDiv.style.alignContent = 'center';
-            fileDiv.style.justifyContent = 'flex-start';
-
-            fileDiv.style.marginBottom = '8px';
-
-            fileDiv.style.width = '90%';
-            fileDiv.style.height = '24px';
-
-            fileDiv.style.boxSizing = 'border-box';
-            fileDiv.style.paddingLeft = '32px';
-            fileDiv.style.paddingRight = '32px';
-
-            fileDiv.style.cursor = 'pointer';
-    
-            Files = [];
-            mainFiles.forEach((file) => {
-                const fdiv = fileDiv.cloneNode();
-                const fname = fileName.cloneNode();
-                const sfname = spanFileName.cloneNode();
-                const fimg = fileImg.cloneNode();
-                const bImg = btrtFileImg.cloneNode();
-                const dImg = dirImg.cloneNode();
-                
-                const filePath = path.join(openFolder, file);
-                const stat = fs.statSync(filePath);
-                if (stat.isFile()) {
-                    const extension = path.extname(file);
-                    if (extension === '.btrt')
-                        fdiv.appendChild(bImg);
-                    else
-                        fdiv.appendChild(fimg);
-                }
-                else {
-                    fdiv.appendChild(dImg);
-                }
-
-                sfname.textContent = file;
-                fname.appendChild(sfname);
-                fdiv.appendChild(fname);
-
-                if (stat.isFile() && path.extname(filePath) != '.cpp' && path.extname(filePath) != '.exe') {
-                    try {
-                        Files.push({
-                            name: file.slice(0, file.lastIndexOf('.')),
-                            path: filePath,
-                            contents: fs.readFileSync(filePath, 'utf8')
-                        });
-                    } catch (err) {
-                        console.log(`Couldn't read file: ${err}`);
-                    }
-                }
-                const fileIndex = Files.length - 1;
-                fdiv.addEventListener('click', () => {
-                    if (stat.isFile()) {
-                        if (openFile != null) {
-                            Files[openFile].contents = codeSpace.value;
-                        }
-                        openFile = fileIndex;
-                        codeSpace.value = Files[openFile].contents;
-                    }
-                });
-
-                if (!stat.isFile() || stat.isFile() && path.extname(filePath) != '.cpp' && path.extname(filePath) != '.exe')
-                    cpBody.appendChild(fdiv);
-            });
-        });
-    });
-
-    const createFileBtn = document.querySelector('#create-file');
-    createFileBtn.addEventListener('click', () => {
-        fs.writeFile(path.join(openFolder, 'file.txt'), '', (err) => {
-            if (err)
-                console.log("Couldn't create file: " + err.message);
-            else
-                console.log('File created successfully!');
-        });
-    }, false);
-
     const runBtn = document.querySelector('#run-btn');
     runBtn.addEventListener('click', () => {
         if (path.extname(Files[openFile].path) != '.btrt')
@@ -248,7 +147,7 @@ window.addEventListener('load', () => {
         else
             btrt = spawn(btrtCompiler);
 
-        btrt.stdin.write(`btrt -p ${prereqsPath}\n`);
+        btrt.stdin.write(`btrt -p ${prereqs}\n`);
         btrt.stdin.write(`btrt -c ${Files[openFile].path}\n`);
 
         btrt.stdout.on('data', (data) => {
@@ -319,9 +218,176 @@ window.addEventListener('load', () => {
             return false;
         }
     });
+
+    const menuBtns = [...document.querySelectorAll('.tb-btn')].slice(0, 4);
+    const menuLists = [...document.querySelectorAll('.menu-lists')];
+    menuBtns.forEach((elem, index) => {
+        elem.addEventListener('click', () => {
+            let visible = false;
+            if (menuLists[index].getAttribute('data-visible')) {
+                visible = (menuLists[index].getAttribute('data-visible') === 'true');
+            }
+            setTimeout(() => {
+                if (visible === false) {
+                    menuLists[index].style.display = 'block';
+                    menuLists[index].style.top = `${elem.getBoundingClientRect().top +
+                        parseFloat(getComputedStyle(elem).height.slice(0, -2)) +
+                        10}px`;
+                    menuLists[index].style.left = `${elem.getBoundingClientRect().left}px`;
+
+                    menuLists[index].setAttribute('data-visible', 'true');
+                }
+                else {
+                    menuLists[index].style.display = '';
+                    menuLists[index].setAttribute('data-visible', 'false');
+                }
+            }, 1);
+        });
+    });
+
+    const menuListsBtns = [...document.querySelectorAll('.menu-lists > li')];
+    const menuListsBtnNames = [...document.querySelectorAll('.menu-lists > li > span:first-child')];
+    menuListsBtns.forEach((elem, index) => {
+        elem.id = `menu-${menuListsBtnNames[index].innerText.toLowerCase().replace(' ', '-')}`;
+    });
+
+    const openFolderBtn = document.querySelector('#menu-open-folder');
+    openFolderBtn.addEventListener('click', () => {
+        ipcRenderer.send('getOpenFolder');
+        ipcRenderer.on('openFolder', (event, folderPath) => {
+            openFolder = folderPath;
+            console.log(openFolder);
+
+            let mainFiles = null;
+            try {
+                mainFiles = fs.readdirSync(openFolder);
+                console.log(mainFiles);
+            } catch (err) {
+                console.log(`Unable to scan directory: ${err}`);
+            }
+    
+            const cpBody = document.querySelector('#cp-body');
+            while (cpBody.firstChild) {
+                cpBody.removeChild(cpBody.lastChild);
+            }
+    
+            const btrtFileImg = document.createElement('img');
+            btrtFileImg.src = '../assets/Beety(icon)-fin.ico';
+            btrtFileImg.style.height = '70%';
+
+            const fileImg = document.createElement('img');
+            fileImg.src = '../assets/Files-Icon-v3.1.png';
+            fileImg.style.height = '70%';
+    
+            const dirImg = document.createElement('img');
+            dirImg.src = '../assets/Plus-Sign-v1.png';
+            dirImg.style.height = '70%';
+    
+            const fileName = document.createElement('div');
+            fileName.style.display = 'flex';
+
+            fileName.style.height = '100%';
+            fileName.style.marginLeft = '8px';
+
+            const spanFileName = document.createElement('span');
+            spanFileName.style.margin = 'auto';
+
+            spanFileName.style.fontSize = '14px';
+            spanFileName.style.fontWeight = '400';
+            spanFileName.style.fontFamily = "'Source Code Pro', monospace";
+            spanFileName.style.color = 'rgb(217, 100, 123)';
+    
+            const fileDiv = document.createElement('div');
+            fileDiv.style.display = 'flex';
+            fileDiv.style.alignItems = 'center';
+            fileDiv.style.justifyContent = 'flex-start';
+            fileDiv.style.gap = '4px';
+
+            fileDiv.style.width = '90%';
+            fileDiv.style.height = '24px';
+
+            fileDiv.style.cursor = 'pointer';
+    
+            Files = [];
+            mainFiles.forEach((file) => {
+                const fdiv = fileDiv.cloneNode();
+                const fname = fileName.cloneNode();
+                const sfname = spanFileName.cloneNode();
+                const fimg = fileImg.cloneNode();
+                const bImg = btrtFileImg.cloneNode();
+                const dImg = dirImg.cloneNode();
+                
+                const filePath = path.join(openFolder, file);
+                const stat = fs.statSync(filePath);
+                if (stat.isFile()) {
+                    const extension = path.extname(file);
+                    if (extension === '.btrt')
+                        fdiv.appendChild(bImg);
+                    else
+                        fdiv.appendChild(fimg);
+                }
+                else {
+                    fdiv.appendChild(dImg);
+                }
+
+                sfname.textContent = file;
+                fname.appendChild(sfname);
+                fdiv.appendChild(fname);
+
+                if (stat.isFile() && path.extname(filePath) != '.cpp' && path.extname(filePath) != '.exe') {
+                    try {
+                        Files.push({
+                            name: file.slice(0, file.lastIndexOf('.')),
+                            path: filePath,
+                            contents: fs.readFileSync(filePath, 'utf8')
+                        });
+                    } catch (err) {
+                        console.log(`Couldn't read file: ${err}`);
+                    }
+                }
+                const fileIndex = Files.length - 1;
+                fdiv.addEventListener('click', () => {
+                    if (stat.isFile()) {
+                        if (openFile != null) {
+                            Files[openFile].contents = codeSpace.value;
+                        }
+                        openFile = fileIndex;
+                        codeSpace.value = Files[openFile].contents;
+                    }
+                });
+
+                if (!stat.isFile() || stat.isFile() && path.extname(filePath) != '.cpp' && path.extname(filePath) != '.exe')
+                    cpBody.appendChild(fdiv);
+            });
+        });
+    });
+
+    const newFileFunc = () => {
+        fs.writeFile(path.join(openFolder, 'file.txt'), '', (err) => {
+            if (err)
+                console.log("Couldn't create file: " + err.message);
+            else
+                console.log('File created successfully!');
+        });
+    };
+    document.querySelector('#create-file').addEventListener('click', newFileFunc);
+    document.querySelector('#menu-new-file').addEventListener('click', newFileFunc);
+
+    document.querySelector('#menu-save').addEventListener('click', () => { saveFile(); });
+    document.querySelector('#menu-save-all').addEventListener('click', () => { saveAllFiles(); });
+
+    document.querySelector('#menu-exit').addEventListener('click', () => { ipcRenderer.send('closeApp'); });
 });
 
 
+
+window.addEventListener('click', (event) => {
+    const menuLists = [...document.querySelectorAll('.menu-lists')];
+    menuLists.forEach((elem) => {
+        elem.style.display = '';
+        elem.setAttribute('data-visible', 'false');
+    });
+});
 
 
 
@@ -384,15 +450,23 @@ window.addEventListener('load', () => {
 
     if (window.localStorage.getItem('btrtPath'))
         btrtPath.value = window.localStorage.getItem('btrtPath');
+    else
+        btrtPath.value = btrtCompiler;
 
     if (window.localStorage.getItem('useBtrt'))
         useBtrt.checked = (window.localStorage.getItem('useBtrt') === 'true');
+    else
+        useBtrt.checked = useBtrtCompiler;
 
     if (window.localStorage.getItem('btrtPyPath'))
         btrtPyPath.value = window.localStorage.getItem('btrtPyPath');
+    else
+        btrtPyPath.value = pyBtrtFile;
 
     if (window.localStorage.getItem('prereqsPath'))
         prereqsPath.value = window.localStorage.getItem('prereqsPath');
+    else
+        prereqsPath.value = prereqs;
 
     btrtPath.addEventListener('keydown', () => {
         window.localStorage.setItem('btrtPath', btrtPath.value);
@@ -407,8 +481,6 @@ window.addEventListener('load', () => {
         window.localStorage.setItem('prereqsPath', prereqsPath.value);
     });
 });
-
-
 
 
 
@@ -430,12 +502,7 @@ window.addEventListener('keydown', (event) => {
     if (Ctrl && Key1) {
         switch (Key1) {
             case 's':
-                fs.writeFile(Files[openFile].path, document.querySelector('#coding-space').value, (err) => {
-                    if (err)
-                        console.log("Couldn't modify file: " + err.message);
-                    else
-                        console.log('File modified successfully!');
-                });
+                saveFile();
                 break;
             default:
                 break;

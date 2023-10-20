@@ -110,22 +110,15 @@ img, textarea, span {
 }
 .line-sep {
     width: 90%;
-    height: 6px;
+    height: 4px;
 
     margin: 64px;
     margin-left: 0;
     margin-right: 0;
 
-    background-image: linear-gradient(-90deg, transparent, 20%, rgb(41, 1, 5));
-}
-.line-sep > div {
-    width: 100%;
-    height: 2px;
-
-    margin-top: 4px;
-
-    background-image: linear-gradient(-90deg, transparent, 20%, rgb(194, 39, 57));
-    filter: blur(2px);
+    background-image: linear-gradient(to top, rgb(194, 39, 57), 50%, rgb(41, 1, 5));
+    -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1), 20%, transparent);
+    mask-image: linear-gradient(to right, rgba(0,0,0,1), 20%, transparent);
 }
 #main-panel {
     grid-area: mp;
@@ -178,7 +171,7 @@ img, textarea, span {
     background-color: rgb(50, 2, 2);
     
     border: none;
-    border-bottom: 3px solid rgb(71, 4, 21);
+    border-bottom: 2px solid rgb(71, 7, 22);
     border-radius: 5px;
 
     outline: none;
