@@ -287,6 +287,45 @@ const appShortCuts = {
             return;
         ipcRenderer.send('closeApp');
     }),
+    'terminal': new Shortcut('Ctrl', 'Shift', 'T', () => {
+        if (document.body.id !== 'index')
+            return;
+
+        const terminal = document.querySelector('#terminal');
+        const terminalMenuTick = document.querySelector('#menu-terminal > img');
+        const app = document.querySelector('#app');
+
+        if (terminal.getAttribute('data-visible')) {
+            terminal.setAttribute('data-visible', terminal.getAttribute('data-visible') === 'true' ? 'false' : 'true');
+            terminal.style.display = terminal.getAttribute('data-visible') === 'true' ? 'block' : '';
+            terminalMenuTick.style.display = terminal.getAttribute('data-visible') === 'true' ? 'block' : '';
+
+            let bottomLine = ['cs', 'cs'];
+            if (terminal.getAttribute('data-visible') === 'true') {
+                bottomLine[0] = 't';
+                bottomLine[1] = 't';
+            }
+            if (app.getAttribute('data-cp-visible') === 'true')
+                bottomLine[0] = 'cp';
+
+            app.style.gridTemplateAreas = `
+                "tb tb tb"
+                "sp ${app.getAttribute('data-cp-visible') === 'true' ? 'cp' : 'cs'} cs"
+                "sp ${bottomLine.join(' ')}"
+            `;
+        }
+        else {
+            terminal.setAttribute('data-visible', 'true');
+            terminal.style.display = 'block';
+            terminalMenuTick.style.display = 'block';
+
+            app.style.gridTemplateAreas = `
+                "tb tb tb"
+                "sp ${app.getAttribute('data-cp-visible') === 'true' ? 'cp' : 'cs'} cs"
+                "sp ${app.getAttribute('data-cp-visible') === 'true' ? 'cp' : 't'} t"
+            `;
+        }
+    }),
 };
 window.addEventListener('keydown', (event) => {
     if (event.repeat === false) {
@@ -300,18 +339,6 @@ window.addEventListener('keydown', (event) => {
             ];
             const nKeys = modKeys.filter((_key) => !mod12.includes(_key));
             if (nKeys.length === 1) nKeys.push(null);
-
-            // console.log(shortcut.GetShortCut() + ' ' + mod12)
-            // console.log(shortcut.GetShortCut() + ' ' + nKeys)
-
-            // if (ascKey === 'save-file') {
-            //     console.log(modKeysCheck.CompareKey(mod12[0], true))
-            //     console.log(modKeysCheck.CompareKey(mod12[1], true))
-            //     console.log(modKeysCheck.CompareKey(nKeys[0], false))
-            //     console.log(modKeysCheck.CompareKey(nKeys[1], false))
-            //     console.log(event.key)
-            //     console.log(shortcut.key)
-            // }
 
             if (modKeysCheck.CompareKey(mod12[0], true) &&
                 modKeysCheck.CompareKey(mod12[1], true) &&
@@ -375,10 +402,12 @@ window.addEventListener('load', () => {
         const app = document.querySelector('#app');
         if (cp.style.display === 'none') {
             cp.style.display = '';
+
+            app.setAttribute('data-cp-visible', 'true');
             app.style.gridTemplateAreas = `
                 "tb tb tb"
                 "sp cp cs"
-                "sp cp t"
+                "sp cp ${document.querySelector('#terminal').getAttribute('data-visible') === 'true' ? 't' : 'cs'}"
             `;
         }
         else {
@@ -392,12 +421,13 @@ window.addEventListener('load', () => {
                 void cp.offsetHeight;
                 cp.classList.add('slide-in');
 
+                app.setAttribute('data-cp-visible', 'false');
                 app.style.gridTemplateAreas = `
                     "tb tb tb"
                     "sp cs cs"
-                    "sp t t"
+                    "sp ${document.querySelector('#terminal').getAttribute('data-visible') === 'true' ? 't t' : 'cs cs'}"
                 `;
-            }, parseFloat(getComputedStyle(cp).animationDuration.slice(0, -1)) * 1000);
+        }, parseFloat(getComputedStyle(cp).animationDuration.slice(0, -1)) * 1000);
         }
     });
 
@@ -540,6 +570,10 @@ window.addEventListener('load', () => {
 
     document.querySelector('#menu-exit').addEventListener('click', appShortCuts['exit-app'].event);
     document.querySelector('#menu-exit > span:last-child').innerText = appShortCuts['exit-app'].GetShortCut();
+
+
+    document.querySelector('#menu-terminal').addEventListener('click', appShortCuts['terminal'].event);
+    document.querySelector('#menu-terminal > span:last-child').innerText = appShortCuts['terminal'].GetShortCut();
 });
 
 
