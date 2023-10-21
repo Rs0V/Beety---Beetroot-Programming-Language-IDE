@@ -1,37 +1,18 @@
 
-const customEvents = {
-    copenfolder: new Event('copenfolder'),
-
-    cnewfile:    new Event('cnewfile'),
-    csavefile:   new Event('csavefile'),
-    csaveall:    new Event('csaveall'),
- 
-    cexitapp:    new Event('cexitapp'),
- 
-    cundo:       new Event('cundo'),
-    credo:       new Event('credo'),
- 
-    ccutline:    new Event('ccutline'),
-    ccopyline:   new Event('ccopyline'),
-    cpasteline:  new Event('cpasteline'),
- 
-    cfind:       new Event('cfind'),
-    creplace:    new Event('creplace'),
- 
-    ccomment:    new Event('ccomment'),
- 
-    cterminal:   new Event('cterminal'),
- 
-    cbtrtdoc:    new Event('cbtrtdoc'),
-    cabout:      new Event('cabout'),
-};
 class Shortcut {
-    constructor(mod1, mod2, key, event, eventFunc) {
-        this.mod1 = mod1;
-        this.mod2 = mod2;
-        this.key  = key;
+    constructor(mod1, mod2, key, event) {
+        this.mod1   = (mod1 === null) ? null : mod1[0].toUpperCase() + mod1.slice(1).toLowerCase();
+        this.mod2   = (mod2 === null) ? null : mod2[0].toUpperCase() + mod2.slice(1).toLowerCase();
+        this.key    = key.toLowerCase();
         this.event  = event;
-        this.eventFunc = eventFunc;
+    }
+    GetShortCut() {
+        let mod1 = (this.mod1 === 'Control') ? 'Ctrl' : this.mod1;
+            mod1 = (this.mod1 === null) ? '' : this.mod1 + '+';
+        let mod2 = (this.mod2 === 'Control') ? 'Ctrl' : this.mod2;
+            mod2 = (this.mod2 === null) ? '' : this.mod2 + '+';
+
+        return mod1 + mod2 + this.key.toUpperCase();
     }
 }
 const modKeysCheck = {
@@ -50,7 +31,32 @@ const modKeysCheck = {
             default:
                 return true;
         }
-    }
+    },
+    CompareKey: function(key, value) {
+        let keyValue = null;
+        if (key !== null) {
+            switch (key) {
+                case 'Control':
+                case 'Ctrl':
+                    keyValue = this.Ctrl;
+                    break;
+                case 'Shift':
+                    keyValue = this.Shift;
+                    break;
+                case 'Alt':
+                    keyValue = this.Alt;
+                    break;
+            }
+        }
+        if (keyValue === null || keyValue === value)
+            return true;
+        return false;
+    },
+    ResetKeys: function() {
+        this.Ctrl  = false;
+        this.Shift = false;
+        this.Alt   = false;
+    },
 }
 window.addEventListener('keydown', (event) => {
     switch (event.key) {
@@ -134,6 +140,189 @@ function saveAllFiles() {
         }
     });
 }
+
+
+
+
+//--------------------
+// SHORTCUTS CHECKS
+//--------------------
+const appShortCuts = {
+    'open-folder': new Shortcut('Ctrl', 'Shift', 'O', () => {
+        const codeSpace = document.querySelector('#coding-space');
+
+        ipcRenderer.send('getOpenFolder');
+        ipcRenderer.on('openFolder', (event, folderPath) => {
+            openFolder = folderPath;
+            console.log(openFolder);
+    
+            let mainFiles = null;
+            try {
+                mainFiles = fs.readdirSync(openFolder);
+                console.log(mainFiles);
+            } catch (err) {
+                console.log(`Unable to scan directory: ${err}`);
+            }
+    
+            const cpBody = document.querySelector('#cp-body');
+            while (cpBody.firstChild) {
+                cpBody.removeChild(cpBody.lastChild);
+            }
+    
+            const btrtFileImg = document.createElement('img');
+            btrtFileImg.src = '../assets/Beety(icon)-fin.ico';
+            btrtFileImg.style.height = '70%';
+    
+            const fileImg = document.createElement('img');
+            fileImg.src = '../assets/Files-Icon-v3.1.png';
+            fileImg.style.height = '70%';
+    
+            const dirImg = document.createElement('img');
+            dirImg.src = '../assets/Plus-Sign-v1.png';
+            dirImg.style.height = '70%';
+    
+            const fileName = document.createElement('div');
+            fileName.style.display = 'flex';
+    
+            fileName.style.height = '100%';
+            fileName.style.marginLeft = '8px';
+    
+            const spanFileName = document.createElement('span');
+            spanFileName.style.margin = 'auto';
+    
+            spanFileName.style.fontSize = '14px';
+            spanFileName.style.fontWeight = '400';
+            spanFileName.style.fontFamily = "'Source Code Pro', monospace";
+            spanFileName.style.color = 'rgb(217, 100, 123)';
+    
+            const fileDiv = document.createElement('div');
+            fileDiv.style.display = 'flex';
+            fileDiv.style.alignItems = 'center';
+            fileDiv.style.justifyContent = 'flex-start';
+            fileDiv.style.gap = '4px';
+    
+            fileDiv.style.width = '90%';
+            fileDiv.style.height = '24px';
+    
+            fileDiv.style.cursor = 'pointer';
+    
+            Files = [];
+            mainFiles.forEach((file) => {
+                const fdiv = fileDiv.cloneNode();
+                const fname = fileName.cloneNode();
+                const sfname = spanFileName.cloneNode();
+                const fimg = fileImg.cloneNode();
+                const bImg = btrtFileImg.cloneNode();
+                const dImg = dirImg.cloneNode();
+                
+                const filePath = path.join(openFolder, file);
+                const stat = fs.statSync(filePath);
+                if (stat.isFile()) {
+                    const extension = path.extname(file);
+                    if (extension === '.btrt')
+                        fdiv.appendChild(bImg);
+                    else
+                        fdiv.appendChild(fimg);
+                }
+                else {
+                    fdiv.appendChild(dImg);
+                }
+    
+                sfname.textContent = file;
+                fname.appendChild(sfname);
+                fdiv.appendChild(fname);
+    
+                if (stat.isFile() && path.extname(filePath) != '.cpp' && path.extname(filePath) != '.exe') {
+                    try {
+                        Files.push({
+                            name: file.slice(0, file.lastIndexOf('.')),
+                            path: filePath,
+                            contents: fs.readFileSync(filePath, 'utf8')
+                        });
+                    } catch (err) {
+                        console.log(`Couldn't read file: ${err}`);
+                    }
+                }
+                const fileIndex = Files.length - 1;
+                fdiv.addEventListener('click', () => {
+                    if (stat.isFile()) {
+                        if (openFile != null) {
+                            Files[openFile].contents = codeSpace.value;
+                        }
+                        openFile = fileIndex;
+                        codeSpace.value = Files[openFile].contents;
+                    }
+                });
+    
+                if (!stat.isFile() || stat.isFile() && path.extname(filePath) != '.cpp' && path.extname(filePath) != '.exe')
+                    cpBody.appendChild(fdiv);
+            });
+        });
+        modKeysCheck.ResetKeys();
+    }),
+    'new-file': new Shortcut('Ctrl', 'Shift', 'A', () => {
+        if (openFolder) {
+            fs.writeFile(path.join(openFolder, 'file.txt'), '', (err) => {
+                if (err)
+                    console.log("Couldn't create file: " + err.message);
+                else
+                    console.log('File created successfully!');
+            });
+        }
+    }),
+    'save-file': new Shortcut('Ctrl', null, 'S', () => {
+        if (document.body.id !== 'index')
+            return;
+        if (openFolder)
+            saveFile();
+    }),
+    'save-all': new Shortcut('Ctrl', 'Shift', 'S', () => {
+        if (document.body.id !== 'index')
+            return;
+        if (openFolder)
+            saveAllFiles();
+    }),
+    'exit-app': new Shortcut('Ctrl', null, 'Q', () => {
+        if (document.body.id !== 'index')
+            return;
+        ipcRenderer.send('closeApp');
+    }),
+};
+window.addEventListener('keydown', (event) => {
+    if (event.repeat === false) {
+        // console.log(`Ctrl: ${modKeysCheck.Ctrl},   Shift: ${modKeysCheck.Shift},   Alt: ${modKeysCheck.Alt},   Key: ${event.key.toUpperCase()}`)
+        for(let ascKey in appShortCuts) {
+            const shortcut = appShortCuts[ascKey];
+
+            const modKeys = ['Ctrl', 'Shift', 'Alt'];
+            const mod12 = [shortcut.mod1 === 'Control' ? 'Ctrl' : shortcut.mod1,
+                shortcut.mod2 === 'Control' ? 'Ctrl' : shortcut.mod2
+            ];
+            const nKeys = modKeys.filter((_key) => !mod12.includes(_key));
+            if (nKeys.length === 1) nKeys.push(null);
+
+            // console.log(shortcut.GetShortCut() + ' ' + mod12)
+            // console.log(shortcut.GetShortCut() + ' ' + nKeys)
+
+            // if (ascKey === 'save-file') {
+            //     console.log(modKeysCheck.CompareKey(mod12[0], true))
+            //     console.log(modKeysCheck.CompareKey(mod12[1], true))
+            //     console.log(modKeysCheck.CompareKey(nKeys[0], false))
+            //     console.log(modKeysCheck.CompareKey(nKeys[1], false))
+            //     console.log(event.key)
+            //     console.log(shortcut.key)
+            // }
+
+            if (modKeysCheck.CompareKey(mod12[0], true) &&
+                modKeysCheck.CompareKey(mod12[1], true) &&
+                modKeysCheck.CompareKey(nKeys[0], false) &&
+                modKeysCheck.CompareKey(nKeys[1], false) &&
+                event.key.toLowerCase() === shortcut.key) {
+                shortcut.event();
+            }
+        };
+    }
+});
 
 
 
@@ -333,132 +522,24 @@ window.addEventListener('load', () => {
         elem.id = `menu-${menuListsBtnNames[index].innerText.toLowerCase().replace(' ', '-')}`;
     });
 
-    const openFolderBtn = document.querySelector('#menu-open-folder');
-    openFolderBtn.addEventListener('click', () => {
-        ipcRenderer.send('getOpenFolder');
-        ipcRenderer.on('openFolder', (event, folderPath) => {
-            openFolder = folderPath;
-            console.log(openFolder);
+    document.querySelector('#menu-open-folder').addEventListener('click', appShortCuts['open-folder'].event);
+    document.querySelector('#menu-open-folder > span:last-child').innerText = appShortCuts['open-folder'].GetShortCut();
 
-            let mainFiles = null;
-            try {
-                mainFiles = fs.readdirSync(openFolder);
-                console.log(mainFiles);
-            } catch (err) {
-                console.log(`Unable to scan directory: ${err}`);
-            }
-    
-            const cpBody = document.querySelector('#cp-body');
-            while (cpBody.firstChild) {
-                cpBody.removeChild(cpBody.lastChild);
-            }
-    
-            const btrtFileImg = document.createElement('img');
-            btrtFileImg.src = '../assets/Beety(icon)-fin.ico';
-            btrtFileImg.style.height = '70%';
+    document.querySelector('#create-file').addEventListener('click', appShortCuts['new-file'].event);
 
-            const fileImg = document.createElement('img');
-            fileImg.src = '../assets/Files-Icon-v3.1.png';
-            fileImg.style.height = '70%';
-    
-            const dirImg = document.createElement('img');
-            dirImg.src = '../assets/Plus-Sign-v1.png';
-            dirImg.style.height = '70%';
-    
-            const fileName = document.createElement('div');
-            fileName.style.display = 'flex';
+    document.querySelector('#menu-new-file').addEventListener('click', appShortCuts['new-file'].event);
+    document.querySelector('#menu-new-file > span:last-child').innerText = appShortCuts['new-file'].GetShortCut();
 
-            fileName.style.height = '100%';
-            fileName.style.marginLeft = '8px';
 
-            const spanFileName = document.createElement('span');
-            spanFileName.style.margin = 'auto';
+    document.querySelector('#menu-save').addEventListener('click', appShortCuts['save-file'].event);
+    document.querySelector('#menu-save > span:last-child').innerText = appShortCuts['save-file'].GetShortCut();
 
-            spanFileName.style.fontSize = '14px';
-            spanFileName.style.fontWeight = '400';
-            spanFileName.style.fontFamily = "'Source Code Pro', monospace";
-            spanFileName.style.color = 'rgb(217, 100, 123)';
-    
-            const fileDiv = document.createElement('div');
-            fileDiv.style.display = 'flex';
-            fileDiv.style.alignItems = 'center';
-            fileDiv.style.justifyContent = 'flex-start';
-            fileDiv.style.gap = '4px';
+    document.querySelector('#menu-save-all').addEventListener('click', appShortCuts['save-all'].event);
+    document.querySelector('#menu-save-all > span:last-child').innerText = appShortCuts['save-all'].GetShortCut();
 
-            fileDiv.style.width = '90%';
-            fileDiv.style.height = '24px';
 
-            fileDiv.style.cursor = 'pointer';
-    
-            Files = [];
-            mainFiles.forEach((file) => {
-                const fdiv = fileDiv.cloneNode();
-                const fname = fileName.cloneNode();
-                const sfname = spanFileName.cloneNode();
-                const fimg = fileImg.cloneNode();
-                const bImg = btrtFileImg.cloneNode();
-                const dImg = dirImg.cloneNode();
-                
-                const filePath = path.join(openFolder, file);
-                const stat = fs.statSync(filePath);
-                if (stat.isFile()) {
-                    const extension = path.extname(file);
-                    if (extension === '.btrt')
-                        fdiv.appendChild(bImg);
-                    else
-                        fdiv.appendChild(fimg);
-                }
-                else {
-                    fdiv.appendChild(dImg);
-                }
-
-                sfname.textContent = file;
-                fname.appendChild(sfname);
-                fdiv.appendChild(fname);
-
-                if (stat.isFile() && path.extname(filePath) != '.cpp' && path.extname(filePath) != '.exe') {
-                    try {
-                        Files.push({
-                            name: file.slice(0, file.lastIndexOf('.')),
-                            path: filePath,
-                            contents: fs.readFileSync(filePath, 'utf8')
-                        });
-                    } catch (err) {
-                        console.log(`Couldn't read file: ${err}`);
-                    }
-                }
-                const fileIndex = Files.length - 1;
-                fdiv.addEventListener('click', () => {
-                    if (stat.isFile()) {
-                        if (openFile != null) {
-                            Files[openFile].contents = codeSpace.value;
-                        }
-                        openFile = fileIndex;
-                        codeSpace.value = Files[openFile].contents;
-                    }
-                });
-
-                if (!stat.isFile() || stat.isFile() && path.extname(filePath) != '.cpp' && path.extname(filePath) != '.exe')
-                    cpBody.appendChild(fdiv);
-            });
-        });
-    });
-
-    const newFileFunc = () => {
-        fs.writeFile(path.join(openFolder, 'file.txt'), '', (err) => {
-            if (err)
-                console.log("Couldn't create file: " + err.message);
-            else
-                console.log('File created successfully!');
-        });
-    };
-    document.querySelector('#create-file').addEventListener('click', newFileFunc);
-    document.querySelector('#menu-new-file').addEventListener('click', newFileFunc);
-
-    document.querySelector('#menu-save').addEventListener('click', () => { saveFile(); });
-    document.querySelector('#menu-save-all').addEventListener('click', () => { saveAllFiles(); });
-
-    document.querySelector('#menu-exit').addEventListener('click', () => { ipcRenderer.send('closeApp'); });
+    document.querySelector('#menu-exit').addEventListener('click', appShortCuts['exit-app'].event);
+    document.querySelector('#menu-exit > span:last-child').innerText = appShortCuts['exit-app'].GetShortCut();
 });
 
 
@@ -563,34 +644,3 @@ window.addEventListener('load', () => {
         window.localStorage.setItem('prereqsPath', prereqsPath.value);
     });
 });
-
-
-
-//--------------------
-// SHORTCUTS CHECKS
-//--------------------
-let appShortCuts = [new Shortcut('Ctrl', null, 's', customEvents.csavefile),
-    new Shortcut('Ctrl', null, 'q', customEvents.cexitapp)];
-window.addEventListener('keydown', (event) => {
-    if (event.repeat === false) {
-        console.log(`Ctrl: ${modKeysCheck.Ctrl},    Shift: ${modKeysCheck.Shift},    Alt: ${modKeysCheck.Alt}`)
-        appShortCuts.forEach((shortcut) => {
-            if (modKeysCheck.CheckKey(shortcut.mod1) &&
-                modKeysCheck.CheckKey(shortcut.mod2) &&
-                event.key === shortcut.key) {
-                dispatchEvent(shortcut.event);
-            }
-        });
-    }
-});
-window.addEventListener(customEvents.csavefile.type, () => {
-    if (document.body.id !== 'index')
-        return;
-    saveFile();
-});
-window.addEventListener(customEvents.cexitapp.type, () => {
-    if (document.body.id !== 'index')
-        return;
-    saveFile();
-});
-document.querySelector('#menu-exit').addEventListener('click', () => { ipcRenderer.send('closeApp'); });
