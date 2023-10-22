@@ -124,24 +124,13 @@ if (window.localStorage.getItem('prereqsPath'))
 
 
 function saveFile() {
-    fs.writeFile(Files[openFile].path, document.querySelector('#coding-space').value, (err) => {
-        if (err)
-            console.log("Couldn't modify file: " + err.message);
-        else
-            console.log(`File "${Files[openFile].name}${path.extname(Files[openFile].path)}" modified successfully!`);
-    });
+    fs.writeFileSync(Files[openFile].path, document.querySelector('#coding-space').value);
 }
 function saveAllFiles() {
     saveFile();
     Files.forEach((file, index) => {
-        if (index !== openFile) {
-            fs.writeFile(file.path, file.contents, (err) => {
-                if (err)
-                    console.log(`Couldn't modify file "${file.name}": ` + err.message);
-                else
-                    console.log(`File "${file.name}${path.extname(file.path)}" modified successfully!`);
-            });
-        }
+        if (index !== openFile)
+            fs.writeFileSync(file.path, file.contents);
     });
 }
 function createFileNameElement(_fileName) {
@@ -359,12 +348,8 @@ const appShortCuts = {
     }),
     'new-file': new Shortcut('Ctrl', 'Shift', 'A', () => {
         if (openFolder) {
-            fs.writeFile(path.join(openFolder, 'file.txt'), '', (err) => {
-                if (err)
-                    console.log("Couldn't create file: " + err.message);
-                else
-                    console.log('File created successfully!');
-            });
+            fs.writeFileSync(path.join(openFolder, 'New File.txt'), '')
+            refreshFilesList();
         }
     }),
     'save-file': new Shortcut('Ctrl', null, 'S', () => {
