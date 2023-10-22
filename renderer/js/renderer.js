@@ -170,6 +170,11 @@ function createFileElement(_fileImg, _fileName) {
     fileElem.style.width = '90%';
     fileElem.style.height = '24px';
 
+    fileElem.style.borderRadius = '4px';
+
+    fileElem.style.boxSizing = 'border-box';
+    fileElem.style.paddingLeft = '4px';
+
     fileElem.style.cursor = 'pointer';
 
     fileElem.appendChild(fileIcon);
@@ -178,6 +183,8 @@ function createFileElement(_fileImg, _fileName) {
     fileElem.tabIndex = '0';
     fileElem.style.outline = 'none';
 
+    fileElem.classList.add('file-elem');
+
     return fileElem;
 }
 function createInputFileNameElement(oldNameElem) {
@@ -185,12 +192,6 @@ function createInputFileNameElement(oldNameElem) {
     inputNameElem.style.outline = 'none';
     inputNameElem.type = 'text';
     inputNameElem.spellcheck = false;
-
-    // const fileNameStyle = getComputedStyle(oldNameElem);
-    // for (let i = 0; i < fileNameStyle.length; ++i) {
-    //     const property = fileNameStyle[i];
-    //     inputNameElem.style[property] = fileNameStyle.getPropertyValue(property);
-    // }
 
     inputNameElem.style.fontSize = '14px';
     inputNameElem.style.fontWeight = '400';
@@ -202,10 +203,8 @@ function createInputFileNameElement(oldNameElem) {
     inputNameElem.style.flexBasis = '0';
 
     inputNameElem.style.borderRadius = '4px'
-    inputNameElem.style.background = 'rgb(44, 1, 1)';
-
-    inputNameElem.style.border = '0';
-    // inputNameElem.style.borderBottom = '2px solid rgb(61, 12, 24)';
+    inputNameElem.style.border = '2px solid rgb(90, 8, 7)'
+    inputNameElem.style.background = 'rgb(20, 2, 1)';
 
     inputNameElem.style.boxSizing = 'border-box';
     inputNameElem.style.padding = '4px';
@@ -220,13 +219,13 @@ function createInputFileNameElement(oldNameElem) {
 
     return inputNameElem;
 }
-function refreshFilesList() {
+function refreshFilesList(selected = null) {
     const codeSpace = document.querySelector('#coding-space');
 
     let mainFiles = null;
     try {
         mainFiles = fs.readdirSync(openFolder);
-        console.log(mainFiles);
+        // console.log(mainFiles);
     } catch (err) {
         console.log(`Unable to scan directory: ${err}`);
     }
@@ -261,8 +260,10 @@ function refreshFilesList() {
                 const fileIndex = Files.length - 1;
                 fileElem.addEventListener('click', (event) => {
                     fileElem.focus();
-                    if (openFile != null) {
+                    fileElem.classList.add('file-elem-selected');
+                    if (openFile != null && !fileElem.isEqualNode(Files[openFile].element)) {
                         Files[openFile].contents = codeSpace.value;
+                        Files[openFile].element.classList.remove('file-elem-selected');
                     }
                     openFile = fileIndex;
                     codeSpace.value = Files[openFile].contents;
@@ -310,10 +311,9 @@ function refreshFilesList() {
                                 Files[fileIndex].name = newFileName.textContent;
                                 Files[fileIndex].path = newFilePath;
 
-                                refreshFilesList();
+                                refreshFilesList(Files[fileIndex].name);
                             }
                         });
-
                         fileElem.removeChild(fileNameElem);
                         fileNameElem.remove();
                         fileElem.appendChild(inputNameElem);
@@ -322,6 +322,10 @@ function refreshFilesList() {
             }
             cpBody.appendChild(fileElem);
         }
+    });
+    Files.forEach((file) => {
+        if (file.name === selected)
+            file.element.click();
     });
 }
 
