@@ -25,7 +25,7 @@ img, textarea, span {
     grid-template-areas:
         "tb tb tb"
         "sp cs cs"
-        "sp t t"
+        "sp cs cs"
     ;
     
     grid-template-columns: 54px 224px 1fr;
@@ -265,6 +265,11 @@ img, textarea, span {
     gap: 8px;
 
     width: 90%;
+
+    box-sizing: border-box;
+    padding: 12px;
+    padding-top: 0;
+    padding-bottom: 0;
 }
 #create-file {
     height: 30px;
