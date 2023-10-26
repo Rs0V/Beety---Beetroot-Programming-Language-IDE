@@ -586,9 +586,10 @@ window.addEventListener('load', () => {
         clearElementsChildren(terminal);
         btrt.stdout.on('data', (data) => {
             console.log(`stdout: ${data}`);
-            terminal.appendChild(createSpan(data, null, true));
+            const dataString = `${data}`;
+            terminal.appendChild(createSpan(dataString, null, true));
             
-            if(data.toLowerCase().includes('compilation done')) {
+            if(dataString.toLowerCase().includes('compilation done')) {
                 // RUN G++ COMPILER
                 const cppFilePath = Files[openFile].path.slice(0, Files[openFile].path.lastIndexOf('.')) + '.cpp';
                 const exeFilePath = Files[openFile].path.slice(0, Files[openFile].path.lastIndexOf('.'));
