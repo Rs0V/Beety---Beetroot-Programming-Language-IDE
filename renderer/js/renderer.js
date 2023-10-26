@@ -790,16 +790,16 @@ window.addEventListener('load', () => {
     else
         prereqsPath.value = prereqs;
 
-    btrtPath.addEventListener('keydown', () => {
+    btrtPath.addEventListener('input', () => {
         window.localStorage.setItem('btrtPath', btrtPath.value);
     });
     useBtrt.addEventListener('click', () => {
         window.localStorage.setItem('useBtrt', useBtrt.checked);
     });
-    btrtPyPath.addEventListener('keydown', () => {
+    btrtPyPath.addEventListener('input', () => {
         window.localStorage.setItem('btrtPyPath', btrtPyPath.value);
     });
-    prereqsPath.addEventListener('keydown', () => {
+    prereqsPath.addEventListener('input', () => {
         window.localStorage.setItem('prereqsPath', prereqsPath.value);
     });
 });
