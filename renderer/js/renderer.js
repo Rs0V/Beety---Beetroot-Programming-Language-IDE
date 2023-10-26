@@ -165,7 +165,9 @@ function createFileElement(_fileImg, _fileName) {
     fileIcon.style.height = '70%';
     fileIcon.style.flexShrink = '0';
 
+
     const fileName = createFileNameElement(_fileName)
+
 
     const fileStatusDot = document.createElement('img');
     fileStatusDot.src = '../assets/Dot-Icon-v1.png';
@@ -173,14 +175,20 @@ function createFileElement(_fileImg, _fileName) {
     fileStatusDot.style.flexShrink = '0';
     fileStatusDot.style.flexBasis = '10px';
 
+
     const fileElem = document.createElement('div');
+    const fileElemContainer = document.createElement('div');
+
     fileElem.style.display = 'flex';
     fileElem.style.alignItems = 'center';
     fileElem.style.justifyContent = 'flex-start';
     fileElem.style.gap = '8px';
 
-    fileElem.style.width = '90%';
-    fileElem.style.height = '24px';
+    fileElemContainer.style.width = '90%';
+    fileElemContainer.style.height = '24px';
+
+    fileElem.style.width = '100%';
+    fileElem.style.height = '100%';
 
     fileElem.style.borderRadius = '4px';
 
@@ -195,6 +203,8 @@ function createFileElement(_fileImg, _fileName) {
     fileStatusDot.style.display = 'none';
     fileElem.appendChild(fileStatusDot);
 
+    fileElemContainer.appendChild(fileElem);
+
     fileElem.tabIndex = '0';
     fileElem.style.outline = 'none';
 
@@ -202,7 +212,7 @@ function createFileElement(_fileImg, _fileName) {
 
     fileElem.setAttribute('data-saved', 'true');
 
-    return fileElem;
+    return fileElemContainer;
 }
 function createInputFileNameElement(oldNameElem) {
     const inputNameElem = document.createElement('input');
@@ -260,7 +270,9 @@ function refreshFilesList(selected = null) {
             !['.cpp', '.exe'].includes(path.extname(file)));
 
         if (isValid) {
-            const fileElem = createFileElement(stat.isFile() ? path.extname(file) : 'dir', file);
+            const fileElemCont = createFileElement(stat.isFile() ? path.extname(file) : 'dir', file);
+            const fileElem = fileElemCont.firstElementChild;
+
             if (stat.isFile()) {
                 try {
                     Files.push({
@@ -332,7 +344,7 @@ function refreshFilesList(selected = null) {
                     }
                 });
             }
-            cpBody.appendChild(fileElem);
+            cpBody.appendChild(fileElemCont);
         }
     });
     Files.forEach((file) => {
@@ -676,6 +688,17 @@ window.addEventListener('load', () => {
 
     document.querySelector('#menu-terminal').addEventListener('click', appShortCuts['terminal'].event);
     document.querySelector('#menu-terminal > span:last-child').innerText = appShortCuts['terminal'].GetShortCut();
+
+
+    const searchBar = document.querySelector('#search-file-bar');
+    searchBar.addEventListener('input', () => {
+        Files.forEach((file) => {
+            if (file.element.children[1].textContent.includes(searchBar.value))
+                file.element.parentElement.style.display = '';
+            else
+                file.element.parentElement.style.display = 'none';
+        });
+    });
 });
 
 
