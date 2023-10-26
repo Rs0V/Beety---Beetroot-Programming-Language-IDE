@@ -16,11 +16,13 @@ function createMainWindow() {
             nodeIntegration: true,
             contextIsolation: false,
             devTools: false,
+            // devTools: true,
         },
         frame: false,
     });
 
     mainWindow.loadFile(path.join(__dirname, './renderer/index.html'));
+    // mainWindow.webContents.openDevTools()
 
     ipcMain.on('getOpenFolder', (event) => {
         dialog.showOpenDialog({

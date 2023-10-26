@@ -588,7 +588,7 @@ window.addEventListener('load', () => {
             console.log(`stdout: ${data}`);
             terminal.appendChild(createSpan(data, null, true));
             
-            if(data.includes('code 0')) {
+            if(data.toLowerCase().includes('compilation done')) {
                 // RUN G++ COMPILER
                 const cppFilePath = Files[openFile].path.slice(0, Files[openFile].path.lastIndexOf('.')) + '.cpp';
                 const exeFilePath = Files[openFile].path.slice(0, Files[openFile].path.lastIndexOf('.'));
