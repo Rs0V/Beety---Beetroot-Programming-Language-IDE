@@ -125,12 +125,17 @@ if (window.localStorage.getItem('prereqsPath'))
 
 function saveFile() {
     fs.writeFileSync(Files[openFile].path, document.querySelector('#coding-space').value);
+    Files[openFile].element.lastElementChild.style.display = 'none';
+    Files[openFile].element.setAttribute('data-saved', 'true');
 }
 function saveAllFiles() {
     saveFile();
     Files.forEach((file, index) => {
-        if (index !== openFile)
+        if (index !== openFile) {
             fs.writeFileSync(file.path, file.contents);
+            file.element.lastElementChild.style.display = 'none';
+            file.element.setAttribute('data-saved', 'true');
+        }
     });
 }
 function createFileNameElement(_fileName) {
@@ -158,8 +163,15 @@ function createFileElement(_fileImg, _fileName) {
             break;
     }
     fileIcon.style.height = '70%';
+    fileIcon.style.flexShrink = '0';
 
     const fileName = createFileNameElement(_fileName)
+
+    const fileStatusDot = document.createElement('img');
+    fileStatusDot.src = '../assets/Dot-Icon-v1.png';
+    fileStatusDot.style.height = '40%';
+    fileStatusDot.style.flexShrink = '0';
+    fileStatusDot.style.flexBasis = '10px';
 
     const fileElem = document.createElement('div');
     fileElem.style.display = 'flex';
@@ -174,16 +186,21 @@ function createFileElement(_fileImg, _fileName) {
 
     fileElem.style.boxSizing = 'border-box';
     fileElem.style.paddingLeft = '4px';
+    fileElem.style.paddingRight = '4px';
 
     fileElem.style.cursor = 'pointer';
 
     fileElem.appendChild(fileIcon);
     fileElem.appendChild(fileName);
+    fileStatusDot.style.display = 'none';
+    fileElem.appendChild(fileStatusDot);
 
     fileElem.tabIndex = '0';
     fileElem.style.outline = 'none';
 
     fileElem.classList.add('file-elem');
+
+    fileElem.setAttribute('data-saved', 'true');
 
     return fileElem;
 }
@@ -274,7 +291,7 @@ function refreshFilesList(selected = null) {
                         return false;
                     }
                     if (event.repeat === false && event.key === 'F2') {
-                        const fileNameElem = fileElem.lastElementChild;
+                        const fileNameElem = fileElem.children[1];
                         const inputNameElem = createInputFileNameElement(fileNameElem);
 
                         setTimeout(() => {
@@ -285,10 +302,8 @@ function refreshFilesList(selected = null) {
                             const newFileName = createFileNameElement(Files[fileIndex].name);
                     
                             inputNameElem.removeEventListener('blur', blurFunc);
-                            fileElem.removeChild(inputNameElem);
+                            fileElem.replaceChild(newFileName, inputNameElem);
                             inputNameElem.remove();
-
-                            fileElem.appendChild(newFileName);
                         }
                         inputNameElem.addEventListener('blur', blurFunc);
 
@@ -300,11 +315,9 @@ function refreshFilesList(selected = null) {
                                 const newFileName = createFileNameElement(inputNameElem.value);
                     
                                 inputNameElem.removeEventListener('blur', blurFunc);
-                                fileElem.removeChild(inputNameElem);
+                                fileElem.replaceChild(newFileName, inputNameElem);
                                 inputNameElem.remove();
 
-                                fileElem.appendChild(newFileName);
-                    
                                 const newFilePath = path.join(Files[fileIndex].dirPath, newFileName.textContent);
                                 fs.renameSync(Files[fileIndex].path, newFilePath);
 
@@ -314,9 +327,8 @@ function refreshFilesList(selected = null) {
                                 refreshFilesList(Files[fileIndex].name);
                             }
                         });
-                        fileElem.removeChild(fileNameElem);
+                        fileElem.replaceChild(inputNameElem, fileNameElem);
                         fileNameElem.remove();
-                        fileElem.appendChild(inputNameElem);
                     }
                 });
             }
@@ -460,6 +472,10 @@ window.addEventListener('load', () => {
         
             // put caret at right position again
             codeSpace.selectionStart = codeSpace.selectionEnd = start + 1;
+        }
+        if (Files[openFile].element.getAttribute('data-saved') === 'true') {
+            Files[openFile].element.setAttribute('data-saved', 'false');
+            Files[openFile].element.lastElementChild.style.display = '';
         }
     });
 
