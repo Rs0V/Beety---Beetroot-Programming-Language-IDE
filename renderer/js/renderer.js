@@ -355,7 +355,9 @@ function refreshFilesList(selected = null) {
 
 if (window.localStorage.getItem('openFolder')) {
     openFolder = window.localStorage.getItem('openFolder');
-    refreshFilesList();
+
+    if (window.document.body.id === 'index')
+        refreshFilesList();
 }
 
 

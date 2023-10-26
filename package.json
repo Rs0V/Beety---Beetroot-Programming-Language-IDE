@@ -5,13 +5,33 @@
   "description": "IDE for Beetroot Programming Language",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "dist": "electron-builder"
   },
-  "author": "",
+  "author": "Beety Softworks",
   "license": "ISC",
   "dependencies": {
-    "electron": "^26.2.4",
     "resize-img": "^2.0.0",
     "toastify-js": "^1.12.0"
+  },
+  "devDependencies": {
+    "electron": "^26.2.4",
+    "electron-builder": "^24.6.4"
+  },
+  "build": {
+    "appId": "com.beetysoft.app",
+    "directories": {
+      "output": "build"
+    },
+    "win": {
+      "target": ["nsis"],
+      "icon": "assets/Beety(icon)-fin.ico"
+    },
+    "nsis": {
+      "installerIcon": "assets/Beety(icon)-fin.ico",
+      "uninstallerIcon": "assets/Beety(icon)-fin.ico",
+      "allowToChangeInstallationDirectory": true,
+      "oneClick": false
+    }
   }
 }
