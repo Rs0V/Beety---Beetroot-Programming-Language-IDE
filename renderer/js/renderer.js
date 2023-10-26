@@ -1,4 +1,21 @@
 
+function clearElementsChildren(elem) {
+    while(elem.firstElementChild) {
+        elem.lastElementChild.remove();
+    }
+}
+function createSpan(text, color = null, block = false) {
+    const span = document.createElement('span');
+
+    span.textContent = text;
+    if (color)
+        span.style.color = color;
+    if (block)
+        span.style.display = "block";
+
+    return span
+}
+
 class Shortcut {
     constructor(mod1, mod2, key, event) {
         this.mod1   = (mod1 === null) ? null : mod1[0].toUpperCase() + mod1.slice(1).toLowerCase();
@@ -258,9 +275,7 @@ function refreshFilesList(selected = null) {
     }
 
     const cpBody = document.querySelector('#cp-body');
-    while (cpBody.firstElementChild) {
-        cpBody.removeChild(cpBody.lastElementChild);
-    }
+    clearElementsChildren(cpBody);
 
     Files = [];
     mainFiles.forEach((file) => {
@@ -567,9 +582,12 @@ window.addEventListener('load', () => {
         btrt.stdin.write(`btrt -p ${prereqs}\n`);
         btrt.stdin.write(`btrt -c ${Files[openFile].path}\n`);
 
+        const terminal = document.querySelector('#terminal');
+        clearElementsChildren(terminal);
         btrt.stdout.on('data', (data) => {
             console.log(`stdout: ${data}`);
-
+            terminal.appendChild(createSpan(data, null, true));
+            
             if(data.includes('code 0')) {
                 // RUN G++ COMPILER
                 const cppFilePath = Files[openFile].path.slice(0, Files[openFile].path.lastIndexOf('.')) + '.cpp';

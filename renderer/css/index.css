@@ -364,6 +364,19 @@ img, textarea, span {
 
     transform-origin: bottom;
     animation: slide-up 0.15s ease-out 0s 1 normal forwards;
+
+
+    box-sizing: border-box;
+    padding: 24px;
+    padding-top: 18px;
+    padding-bottom: 18px;
+
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'Source Code Pro', monospace;
+    color: rgb(221, 110, 132);
+
+    tab-size: 4;
 }
 
 @keyframes drop-down {
